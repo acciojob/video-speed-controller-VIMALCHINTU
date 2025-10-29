@@ -1,65 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        video{
-            position: relative;
-            width: 400px;
-        }
-        .controls{
-            position: absolute;
-            top: 200px;
-            left: 20px;
-            
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Speed Controller</title>
+  <style>
+    body {
+      background: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      padding-top: 20px;
+    }
 
-    </style>
+    .player {
+      position: relative;
+      max-width: 400px;
+    }
+
+    .player__video {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .player__controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #444;
+      cursor: pointer;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress__filled {
+      width: 0%;
+      height: 100%;
+      background: red;
+      transition: width 0.1s;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100px;
+    }
+  </style>
 </head>
 <body>
-    <video src="https://www.w3schools.com/html/mov_bbb.mp4" id="video" ></video>
-    <div class="controls">
-        <button style="background-color: transparent; border: none; color: white;" id="backword"><<</button>
-        <button style="background-color: transparent; border: none; color: white;" id="forword">>></button>
-        <button style="background-color: transparent; border: none; color: white;" id="pause">►</button>
-        <input id="sound" type="range" min="0" max="1" step="0.1">
-        <input id="speed" type="range" min="0.5" max="2" step="0.1">
+
+  <div class="player">
+    <video class="player__video" id="video" src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+
+    <div class="player__controls">
+      <div class="progress">
+        <div class="progress__filled"></div>
+      </div>
+
+      <div class="buttons">
+        <button class="backward">« 10s</button>
+        <button class="player__button">►</button>
+        <button class="forward">25s »</button>
+        <label>Volume:
+          <input class="volume" type="range" min="0" max="1" step="0.1">
+        </label>
+        <label>Speed:
+          <input class="playbackSpeed" type="range" min="0.5" max="2" step="0.1" value="1">
+        </label>
+      </div>
     </div>
-    <script>
-        const video=document.getElementById("video")
-        const backword=document.getElementById("backword")
-        const forword=document.getElementById("forword")
-        const pause_play=document.getElementById("pause")
-        const sound=document.getElementById("sound")
-        const speed=document.getElementById("speed")
-        pause_play.addEventListener("click",(e)=>{
-            if(video.paused){
-                video.play()
-                pause_play.textContent="❚❚"
+  </div>
 
-            }else{
-                video.pause()
-                pause_play.textContent="►"
-            }
+  <script >
+	  const video = document.querySelector('.player__video');
+const playButton = document.querySelector('.player__button');
+const backButton = document.querySelector('.backward');
+const forwardButton = document.querySelector('.forward');
+const volume = document.querySelector('.volume');
+const speed = document.querySelector('.playbackSpeed');
+const progressFilled = document.querySelector('.progress__filled');
+const progress = document.querySelector('.progress');
 
-        })
-        backword.addEventListener("click",()=>{
-            video.currentTime-=5
-        })
-        forword.addEventListener("click",()=>{
-            video.currentTime+=5
-        })
-        sound.addEventListener("input",(e)=>{
-            video.volume=e.target.value
+// Set default values
+video.volume = 0.75;
+volume.value = 0.75;
+speed.value = 1;
 
-        })
-        speed.addEventListener("input",(e)=>{
-            video.playbackRate=e.target.value
+// Toggle play/pause
+playButton.addEventListener('click', () => {
+  if (video.paused) {
+    video.play();
+    playButton.textContent = '❚❚';
+  } else {
+    video.pause();
+    playButton.textContent = '►';
+  }
+});
 
-        })
-    </script>
-    
+// Update play/pause button based on video state
+video.addEventListener('play', () => (playButton.textContent = '❚❚'));
+video.addEventListener('pause', () => (playButton.textContent = '►'));
+
+// Rewind 10 seconds
+backButton.addEventListener('click', () => {
+  video.currentTime -= 10;
+});
+
+// Skip forward 25 seconds
+forwardButton.addEventListener('click', () => {
+  video.currentTime += 25;
+});
+
+// Volume control
+volume.addEventListener('input', (e) => {
+  video.volume = e.target.value;
+});
+
+// Playback speed control
+speed.addEventListener('input', (e) => {
+  video.playbackRate = e.target.value;
+});
+
+// Update progress bar as video plays
+video.addEventListener('timeupdate', () => {
+  const percent = (video.currentTime / video.duration) * 100;
+  progressFilled.style.width = `${percent}%`;
+});
+
+// Click on progress bar to skip
+progress.addEventListener('click', (e) => {
+  const newTime = (e.offsetX / progress.offsetWidth) * video.duration;
+  video.currentTime = newTime;
+});
+
+  </script>
 </body>
 </html>
